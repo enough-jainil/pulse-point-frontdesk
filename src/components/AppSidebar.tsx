@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import {
   Calendar,
   ChevronUp,
@@ -10,9 +11,12 @@ import {
   Settings,
   TrendingUp,
   Users,
-  User
+  User,
+  LogOut
 } from "lucide-react";
-import { NavLink, useLocation } from "react-router-dom";
+import { NavLink, useLocation, useNavigate } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 
 import {
   Sidebar,
@@ -131,8 +135,47 @@ const sectionMenuItems = [
 export function AppSidebar() {
   const { state } = useSidebar();
   const location = useLocation();
+  const navigate = useNavigate();
+  const { toast } = useToast();
   const currentPath = location.pathname;
   const isCollapsed = state === "collapsed";
+  const [user, setUser] = useState<any>(null);
+
+  useEffect(() => {
+    // Get current user
+    const getUser = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      setUser(user);
+    };
+    getUser();
+
+    // Listen for auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      setUser(session?.user || null);
+      if (event === 'SIGNED_OUT') {
+        navigate('/auth');
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, [navigate]);
+
+  const handleLogout = async () => {
+    try {
+      await supabase.auth.signOut();
+      toast({
+        title: "Logged out",
+        description: "You have been successfully logged out.",
+      });
+      navigate('/auth');
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  };
 
   const isActive = (path: string) => currentPath === path;
   const isGroupActive = (items: { url: string }[]) =>
@@ -222,9 +265,11 @@ export function AppSidebar() {
                   {!isCollapsed && (
                     <>
                       <div className="flex flex-col flex-1 text-left">
-                        <span className="text-sm font-medium">Front Desk</span>
+                        <span className="text-sm font-medium">
+                          {user?.email || "Front Desk"}
+                        </span>
                         <span className="text-xs text-muted-foreground">
-                          Front Desk Executive
+                          Admin User
                         </span>
                       </div>
                       <ChevronUp className="h-4 w-4" />
@@ -232,14 +277,17 @@ export function AppSidebar() {
                   )}
                 </SidebarMenuButton>
               </DropdownMenuTrigger>
-              <DropdownMenuContent side="top" className="w-[--radix-popper-anchor-width]">
+              <DropdownMenuContent side="top" className="w-[--radix-popper-anchor-width] bg-popover border">
                 <DropdownMenuItem>
+                  <User className="h-4 w-4 mr-2" />
                   <span>Profile</span>
                 </DropdownMenuItem>
                 <DropdownMenuItem>
+                  <Settings className="h-4 w-4 mr-2" />
                   <span>Settings</span>
                 </DropdownMenuItem>
-                <DropdownMenuItem>
+                <DropdownMenuItem onClick={handleLogout} className="text-destructive">
+                  <LogOut className="h-4 w-4 mr-2" />
                   <span>Sign out</span>
                 </DropdownMenuItem>
               </DropdownMenuContent>
