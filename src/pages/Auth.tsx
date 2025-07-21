@@ -24,7 +24,7 @@ const Auth = () => {
     const checkAuth = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (session) {
-        navigate("/dashboard");
+        navigate("/");
       }
     };
     checkAuth();
@@ -52,14 +52,14 @@ const Auth = () => {
             title: "Success",
             description: "Logged in successfully!",
           });
-          navigate("/dashboard");
+          navigate("/");
         }
       } else {
         const { error } = await supabase.auth.signUp({
           email,
           password,
           options: {
-            emailRedirectTo: `${window.location.origin}/dashboard`,
+            emailRedirectTo: `${window.location.origin}/`,
             data: {
               full_name: fullName,
             }
@@ -99,7 +99,7 @@ const Auth = () => {
             <span className="text-primary-foreground font-bold text-xl">GYM</span>
           </div>
           <CardTitle className="text-2xl">
-            Welcome to {/* Will be updated with new name */} 
+            Welcome to Power Gym 
           </CardTitle>
           <p className="text-muted-foreground">
             {isLogin ? "Sign in to your admin account" : "Create your admin account"}
