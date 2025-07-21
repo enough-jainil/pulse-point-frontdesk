@@ -190,7 +190,7 @@ export function AppSidebar() {
           </div>
           {!isCollapsed && (
             <div>
-              <h2 className="text-lg font-semibold text-primary">Octane Fit City</h2>
+              <h2 className="text-lg font-semibold text-primary">Power Gym</h2>
             </div>
           )}
         </div>

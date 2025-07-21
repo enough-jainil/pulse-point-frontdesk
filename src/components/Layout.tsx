@@ -30,7 +30,7 @@ export function Layout({ children }: LayoutProps) {
                   New Registration
                 </Button>
                 <Button variant="outline" size="sm">
-                  OctaneFitCity
+                  Power Gym
                 </Button>
               </div>
             </div>
