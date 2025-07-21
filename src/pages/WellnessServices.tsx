@@ -66,19 +66,87 @@ const WellnessServices = () => {
     }
   };
 
-  const handleEdit = (service: any) => {
-    toast({
-      title: "Edit Service",
-      description: `Editing ${service.title}`,
-    });
+  const handleEdit = async (service: any) => {
+    // For now, show a simple prompt - you can replace with a proper modal
+    const newTitle = prompt("Edit service title:", service.title);
+    if (!newTitle) return;
+
+    try {
+      const { error } = await supabase
+        .from("services")
+        .update({ title: newTitle })
+        .eq("id", service.id);
+
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: "Service updated successfully",
+      });
+      fetchServices();
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
   };
 
-  const handleDelete = (service: any) => {
-    toast({
-      title: "Delete Service",
-      description: `Deleting ${service.title}`,
-      variant: "destructive",
-    });
+  const handleDelete = async (service: any) => {
+    if (!confirm(`Are you sure you want to delete ${service.title}?`)) return;
+
+    try {
+      const { error } = await supabase
+        .from("services")
+        .delete()
+        .eq("id", service.id);
+
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: "Service deleted successfully",
+      });
+      fetchServices();
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleAdd = async () => {
+    const title = prompt("Enter service title:");
+    if (!title) return;
+
+    const description = prompt("Enter service description:");
+    
+    try {
+      const { error } = await supabase
+        .from("services")
+        .insert([{
+          title,
+          description: description || "",
+          status: "active"
+        }]);
+
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: "Service added successfully",
+      });
+      fetchServices();
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
   };
 
   return (
@@ -86,7 +154,7 @@ const WellnessServices = () => {
       {/* Header */}
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-bold">Services</h1>
-        <Button>
+        <Button onClick={handleAdd}>
           <Plus className="h-4 w-4 mr-2" />
           Add Service
         </Button>

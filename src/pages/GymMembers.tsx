@@ -1,213 +1,193 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Search, Eye, Edit, Trash2 } from "lucide-react";
+import { DataTable } from "@/components/DataTable";
+import { Badge } from "@/components/ui/badge";
+import { Plus, Users, UserCheck, UserX } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
+import { useNavigate } from "react-router-dom";
 
 const GymMembers = () => {
-  const [searchTerm, setSearchTerm] = useState("");
-  const [entriesPerPage, setEntriesPerPage] = useState("10");
+  const [members, setMembers] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const { toast } = useToast();
+  const navigate = useNavigate();
 
-  const members = [
-    {
-      id: 1,
-      name: "azim imran bhaiji",
-      memberId: "9427158406",
-      email: "azimpt268@gmail.com",
-      dob: "2007-10-03",
-      age: 17,
-      gender: "Male",
-      goal: "--",
-      otp: "--",
-      created: "2025-07-14",
-      avatar: "/placeholder.svg"
+  const columns = [
+    { 
+      key: "member_id", 
+      label: "MEMBER ID", 
+      sortable: true 
     },
     {
-      id: 2,
-      name: "MOhammad oliya",
-      memberId: "740861612",
-      email: "oliyaazim@gmail.com",
-      dob: "1996-09-26",
-      age: 28,
-      gender: "Male",
-      goal: "--",
-      otp: "--",
-      created: "2025-07-14",
-      avatar: "/placeholder.svg"
+      key: "first_name",
+      label: "NAME",
+      sortable: true,
+      render: (value: string, row: any) => (
+        <div className="flex items-center gap-3">
+          <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
+            <span className="text-xs font-medium text-primary">
+              {value.charAt(0).toUpperCase()}
+            </span>
+          </div>
+          <div>
+            <p className="font-medium">{`${row.first_name} ${row.last_name}`}</p>
+            <p className="text-sm text-muted-foreground">{row.member_id}</p>
+          </div>
+        </div>
+      ),
     },
+    { key: "email", label: "EMAIL", sortable: true },
+    { key: "phone", label: "PHONE", sortable: true },
+    { key: "date_of_birth", label: "DOB", sortable: true },
+    { key: "gender", label: "GENDER" },
     {
-      id: 3,
-      name: "patel safvan",
-      memberId: "7016427720",
-      email: "marhabapatel39@gmail.com",
-      dob: "2004-08-23",
-      age: 20,
-      gender: "Male",
-      goal: "--",
-      otp: "--",
-      created: "2025-07-12",
-      avatar: "/placeholder.svg"
+      key: "status",
+      label: "STATUS",
+      render: (value: string) => (
+        <Badge variant={value === "active" ? "default" : "secondary"}>
+          {value}
+        </Badge>
+      ),
     },
-    {
-      id: 4,
-      name: "afzal abdul patel",
-      memberId: "6356206795",
-      email: "patzal682@gmail.com",
-      dob: "2003-02-19",
-      age: 22,
-      gender: "Male",
-      goal: "--",
-      otp: "--",
-      created: "2025-07-12",
-      avatar: "/placeholder.svg"
-    },
-    {
-      id: 5,
-      name: "jitendra kumar",
-      memberId: "9913207604",
-      email: "jturajul11@gmail.com",
-      dob: "1988-01-25",
-      age: 37,
-      gender: "Male",
-      goal: "--",
-      otp: "--",
-      created: "2025-07-10",
-      avatar: "/placeholder.svg"
-    }
   ];
 
-  const filteredMembers = members.filter(member =>
-    member.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    member.email.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  useEffect(() => {
+    fetchMembers();
+  }, []);
+
+  const fetchMembers = async () => {
+    try {
+      const { data, error } = await supabase
+        .from("members")
+        .select("*")
+        .order("created_at", { ascending: false });
+
+      if (error) throw error;
+      setMembers(data || []);
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: "Failed to fetch members: " + error.message,
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleEdit = (member: any) => {
+    toast({
+      title: "Edit Member",
+      description: `Editing ${member.first_name} ${member.last_name}`,
+    });
+    // Navigate to edit page or open edit modal
+  };
+
+  const handleDelete = async (member: any) => {
+    if (!confirm(`Are you sure you want to delete ${member.first_name} ${member.last_name}?`)) return;
+
+    try {
+      const { error } = await supabase
+        .from("members")
+        .delete()
+        .eq("id", member.id);
+
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: "Member deleted successfully",
+      });
+      fetchMembers();
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleView = (member: any) => {
+    toast({
+      title: "View Member",
+      description: `Viewing details for ${member.first_name} ${member.last_name}`,
+    });
+  };
+
+  const activeMembers = members.filter((member: any) => member.status === "active");
+  const inactiveMembers = members.filter((member: any) => member.status === "inactive");
 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-bold">GYM Members</h1>
         <div className="flex gap-2">
-          <Badge variant="secondary">Active</Badge>
-          <Badge variant="outline">In Active</Badge>
-          <Button className="bg-primary hover:bg-primary-hover">
-            Add Now
+          <Badge variant="default" className="bg-success text-success-foreground">
+            Active: {activeMembers.length}
+          </Badge>
+          <Badge variant="secondary">
+            Inactive: {inactiveMembers.length}
+          </Badge>
+          <Button 
+            className="bg-primary hover:bg-primary/90"
+            onClick={() => navigate('/gym/add-member')}
+          >
+            <Plus className="h-4 w-4 mr-2" />
+            Add Member
           </Button>
         </div>
       </div>
 
+      {/* Stats Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Total Members</CardTitle>
+            <Users className="h-4 w-4 text-primary" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{members.length}</div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Active Members</CardTitle>
+            <UserCheck className="h-4 w-4 text-success" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{activeMembers.length}</div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Inactive Members</CardTitle>
+            <UserX className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{inactiveMembers.length}</div>
+          </CardContent>
+        </Card>
+      </div>
+
       <Card>
         <CardHeader>
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <div className="flex items-center gap-2">
-                <span className="text-sm">Show</span>
-                <Select value={entriesPerPage} onValueChange={setEntriesPerPage}>
-                  <SelectTrigger className="w-20">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="10">10</SelectItem>
-                    <SelectItem value="25">25</SelectItem>
-                    <SelectItem value="50">50</SelectItem>
-                  </SelectContent>
-                </Select>
-                <span className="text-sm">entries</span>
-              </div>
-            </div>
-            <div className="flex items-center gap-2">
-              <Search className="h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="Search..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-64"
-              />
-            </div>
-          </div>
+          <CardTitle>All Members</CardTitle>
         </CardHeader>
         <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>#</TableHead>
-                <TableHead>NAME</TableHead>
-                <TableHead>EMAIL</TableHead>
-                <TableHead>DOB</TableHead>
-                <TableHead>AGE</TableHead>
-                <TableHead>GENDER</TableHead>
-                <TableHead>GOAL</TableHead>
-                <TableHead>OTP</TableHead>
-                <TableHead>CREATED</TableHead>
-                <TableHead>ACTIONS</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filteredMembers.map((member, index) => (
-                <TableRow key={member.id}>
-                  <TableCell>{index + 1}</TableCell>
-                  <TableCell>
-                    <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
-                        <span className="text-xs font-medium text-primary">
-                          {member.name.charAt(0).toUpperCase()}
-                        </span>
-                      </div>
-                      <div>
-                        <p className="font-medium">{member.name}</p>
-                        <p className="text-sm text-muted-foreground">{member.memberId}</p>
-                      </div>
-                    </div>
-                  </TableCell>
-                  <TableCell>{member.email}</TableCell>
-                  <TableCell>{member.dob}</TableCell>
-                  <TableCell>{member.age}</TableCell>
-                  <TableCell>{member.gender}</TableCell>
-                  <TableCell>{member.goal}</TableCell>
-                  <TableCell>{member.otp}</TableCell>
-                  <TableCell>{member.created}</TableCell>
-                  <TableCell>
-                    <div className="flex items-center gap-2">
-                      <Button variant="ghost" size="icon" className="h-8 w-8 text-primary">
-                        <Eye className="h-4 w-4" />
-                      </Button>
-                      <Button variant="ghost" size="icon" className="h-8 w-8 text-warning">
-                        <Edit className="h-4 w-4" />
-                      </Button>
-                      <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive">
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-
-          <div className="flex items-center justify-between mt-4">
-            <p className="text-sm text-muted-foreground">
-              Showing 1 to {Math.min(parseInt(entriesPerPage), filteredMembers.length)} of {filteredMembers.length} entries
-            </p>
-            <div className="flex items-center gap-2">
-              <Button variant="outline" size="sm">Previous</Button>
-              <Button size="sm" className="bg-primary text-primary-foreground">1</Button>
-              <Button variant="outline" size="sm">Next</Button>
-            </div>
-          </div>
+          <DataTable
+            data={members}
+            columns={columns}
+            searchPlaceholder="Search members..."
+            loading={loading}
+            onEdit={handleEdit}
+            onDelete={handleDelete}
+            onView={handleView}
+          />
         </CardContent>
       </Card>
     </div>

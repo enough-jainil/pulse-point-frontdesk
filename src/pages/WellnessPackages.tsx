@@ -87,19 +87,101 @@ const WellnessPackages = () => {
     }
   };
 
-  const handleEdit = (pkg: any) => {
-    toast({
-      title: "Edit Package",
-      description: `Editing ${pkg.title}`,
-    });
+  const handleEdit = async (pkg: any) => {
+    const newTitle = prompt("Edit package title:", pkg.title);
+    if (!newTitle) return;
+
+    try {
+      const { error } = await supabase
+        .from("wellness_packages")
+        .update({ title: newTitle })
+        .eq("id", pkg.id);
+
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: "Package updated successfully",
+      });
+      fetchPackages();
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
   };
 
-  const handleDelete = (pkg: any) => {
-    toast({
-      title: "Delete Package",
-      description: `Deleting ${pkg.title}`,
-      variant: "destructive",
-    });
+  const handleDelete = async (pkg: any) => {
+    if (!confirm(`Are you sure you want to delete ${pkg.title}?`)) return;
+
+    try {
+      const { error } = await supabase
+        .from("wellness_packages")
+        .delete()
+        .eq("id", pkg.id);
+
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: "Package deleted successfully",
+      });
+      fetchPackages();
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleAdd = async () => {
+    const title = prompt("Enter package title:");
+    if (!title) return;
+
+    const sessionsStr = prompt("Enter number of sessions:", "1");
+    const durationStr = prompt("Enter duration in minutes:", "60");
+    const mrpStr = prompt("Enter MRP:", "1000");
+    const sellingPriceStr = prompt("Enter selling price:", "900");
+    
+    if (!sessionsStr || !durationStr || !mrpStr || !sellingPriceStr) return;
+
+    try {
+      const sessions = parseInt(sessionsStr);
+      const duration_minutes = parseInt(durationStr);
+      const mrp = parseFloat(mrpStr);
+      const selling_price = parseFloat(sellingPriceStr);
+      const discount = Math.round(((mrp - selling_price) / mrp) * 100);
+
+      const { error } = await supabase
+        .from("wellness_packages")
+        .insert([{
+          title,
+          sessions,
+          duration_minutes,
+          mrp,
+          selling_price,
+          discount,
+          status: "active"
+        }]);
+
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: "Package added successfully",
+      });
+      fetchPackages();
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
   };
 
   return (
@@ -107,7 +189,7 @@ const WellnessPackages = () => {
       {/* Header */}
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-bold">Packages</h1>
-        <Button>
+        <Button onClick={handleAdd}>
           <Plus className="h-4 w-4 mr-2" />
           Add Package
         </Button>
