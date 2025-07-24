@@ -46,7 +46,7 @@ const AddMember = () => {
     setFormData((prev) => ({
       ...prev,
       selectedPackage: packageId,
-      amount: selectedPkg ? selectedPkg.price : 0,
+      amount: selectedPkg ? selectedPkg.selling_price : 0,
     }));
   };
   const { toast } = useToast();
@@ -345,8 +345,8 @@ const AddMember = () => {
                   ) : (
                     packages.map((pkg: any) => (
                       <SelectItem key={pkg.id} value={pkg.id}>
-                        {pkg.name} - ₹{pkg.price} ({pkg.duration}{" "}
-                        {pkg.duration_type})
+                        {pkg.name} - ₹{pkg.selling_price} ({pkg.duration_days}{" "}
+                        days)
                       </SelectItem>
                     ))
                   )}
@@ -368,11 +368,11 @@ const AddMember = () => {
                       </p>
                       <div className="flex justify-between items-center">
                         <span className="text-sm">
-                          Duration: {selectedPkg.duration}{" "}
-                          {selectedPkg.duration_type}
+                          Duration: {selectedPkg.duration_days} days (
+                          {selectedPkg.type})
                         </span>
                         <span className="font-semibold text-lg">
-                          ₹{selectedPkg.price}
+                          ₹{selectedPkg.selling_price}
                         </span>
                       </div>
                     </div>
@@ -453,7 +453,7 @@ const AddMember = () => {
                       <div className="flex justify-between">
                         <span>Duration:</span>
                         <span>
-                          {selectedPkg.duration} {selectedPkg.duration_type}
+                          {selectedPkg.duration_days} days ({selectedPkg.type})
                         </span>
                       </div>
                       <div className="flex justify-between">

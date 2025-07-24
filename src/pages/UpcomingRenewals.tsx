@@ -44,55 +44,61 @@ const UpcomingRenewals = () => {
       const thirtyDaysFromNow = new Date();
       thirtyDaysFromNow.setDate(today.getDate() + 30);
 
-      // Simply fetch all members and calculate renewals from their membership dates
-      const { data: members, error } = await supabase
+      // Fetch member_memberships data first
+      const { data: userMemberships, error: membershipError } = await supabase
+        .from("member_memberships")
+        .select("*");
+
+      if (membershipError) {
+        throw membershipError;
+      }
+
+      // Fetch all members data
+      const { data: members, error: membersError } = await supabase
         .from("members")
         .select("*");
 
-      if (error) {
-        throw error;
+      if (membersError) {
+        throw membersError;
       }
 
-      // Calculate renewals from membership start dates
-      const renewalsData = (members || [])
-        .filter((member: any) => member.full_name || member.name) // Only include members with names
-        .map((member: any) => {
-          // Assume 30 days membership if no specific duration
-          const membershipDurationDays = 30;
-          const membershipStartDate = new Date(
-            member.membership_start_date || member.created_at
-          );
-          const membershipEndDate = new Date(membershipStartDate);
-          membershipEndDate.setDate(
-            membershipStartDate.getDate() + membershipDurationDays
-          );
+      // Create a lookup map for members
+      const membersMap = (members || []).reduce((acc: any, member: any) => {
+        acc[member.id] = member;
+        return acc;
+      }, {});
 
-          // Determine membership type based on activeTab
-          let membershipType = "Gym Membership";
-          if (activeTab === "pt") membershipType = "Personal Training";
-          if (activeTab === "wellness") membershipType = "Wellness Center";
+      // Process membership data by joining with member data manually
+      const renewalsData = (userMemberships || []).map((membership: any) => {
+        const member = membersMap[membership.member_id] || {};
+        const membershipStartDate = new Date(membership.start_date);
+        const membershipEndDate = new Date(membership.end_date);
 
-          return {
-            id: member.id,
-            member: {
-              name: member.full_name || member.name || "Unknown Member",
-              phone: member.phone_number || member.phone || "No phone",
-              email: member.email_address || member.email || "No email",
-            },
-            membership: member.membership_type || membershipType,
-            status: member.member_status || member.status || "active",
-            start_date: membershipStartDate.toISOString().split("T")[0],
-            end_date: membershipEndDate.toISOString().split("T")[0],
-            calculated_end_date: membershipEndDate,
-            amount: member.membership_amount || member.amount || 0,
-          };
-        });
+        // Determine membership type based on activeTab
+        let membershipType = "Gym Membership";
+        if (activeTab === "pt") membershipType = "Personal Training";
+        if (activeTab === "wellness") membershipType = "Wellness Center";
 
-      // Filter for memberships ending in the next 30 days
-      const upcomingRenewals = renewalsData.filter((renewal: any) => {
-        const endDate = renewal.calculated_end_date;
-        return endDate >= today && endDate <= thirtyDaysFromNow;
+        return {
+          id: membership.id,
+          member: {
+            name:
+              `${member.first_name || ""} ${member.last_name || ""}`.trim() ||
+              "Unknown Member",
+            phone: member.phone_number || "No phone",
+            email: member.email || "No email",
+          },
+          membership: membership.membership_type || membershipType,
+          status: membership.status || "active",
+          start_date: membership.start_date,
+          end_date: membership.end_date,
+          calculated_end_date: membershipEndDate,
+          amount: membership.amount_paid || 0,
+        };
       });
+
+      // For now, show all memberships to see the data (remove 30-day filter)
+      const upcomingRenewals = renewalsData;
 
       // Sort by end date
       upcomingRenewals.sort(

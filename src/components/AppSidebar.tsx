@@ -56,6 +56,11 @@ const mainMenuItems = [
     url: "/inquiries",
     icon: MessageSquare,
   },
+  {
+    title: "Reports",
+    url: "/reports",
+    icon: TrendingUp,
+  },
 ];
 
 const sectionMenuItems = [
@@ -92,26 +97,6 @@ const sectionMenuItems = [
       { title: "Invoices", url: "/billing/invoices" },
       { title: "Payments", url: "/billing/payments" },
       { title: "Due Balances", url: "/billing/due-balances" },
-    ],
-  },
-  {
-    title: "Reports",
-    icon: TrendingUp,
-    items: [
-      { title: "Sales Register", url: "/reports/sales" },
-      { title: "Cash Register", url: "/reports/cash" },
-      { title: "GST Report", url: "/reports/gst" },
-    ],
-  },
-  {
-    title: "CMS Manage",
-    icon: Settings,
-    items: [
-      { title: "Stories", url: "/cms/stories" },
-      { title: "Our Gallery", url: "/cms/gallery" },
-      { title: "Our Team", url: "/cms/team" },
-      { title: "Testimonial", url: "/cms/testimonial" },
-      { title: "SEO Meta", url: "/cms/seo" },
     ],
   },
 ];

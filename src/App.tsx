@@ -12,8 +12,6 @@ import OFCMemberships from "./pages/OFCMemberships";
 import MembershipPackages from "./pages/MembershipPackages";
 import UpcomingRenewals from "./pages/UpcomingRenewals";
 import Reports from "./pages/Reports";
-import CMSManagement from "./pages/CMSManagement";
-import SEOMetaManagement from "./pages/SEOMetaManagement";
 import WellnessAppointments from "./pages/WellnessAppointments";
 import WellnessServices from "./pages/WellnessServices";
 import WellnessPackages from "./pages/WellnessPackages";
@@ -127,19 +125,7 @@ const App = () => (
                     />
 
                     {/* Reports */}
-                    <Route path="/reports/sales" element={<Reports />} />
-                    <Route path="/reports/cash" element={<Reports />} />
-                    <Route path="/reports/gst" element={<Reports />} />
-
-                    {/* CMS Management */}
-                    <Route path="/cms/stories" element={<CMSManagement />} />
-                    <Route path="/cms/gallery" element={<CMSManagement />} />
-                    <Route path="/cms/team" element={<CMSManagement />} />
-                    <Route
-                      path="/cms/testimonial"
-                      element={<CMSManagement />}
-                    />
-                    <Route path="/cms/seo" element={<SEOMetaManagement />} />
+                    <Route path="/reports" element={<Reports />} />
 
                     {/* Profile */}
                     <Route path="/profile" element={<Profile />} />
