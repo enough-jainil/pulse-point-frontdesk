@@ -9,6 +9,7 @@ import Inquiries from "./pages/Inquiries";
 import GymMembers from "./pages/GymMembers";
 import AddMember from "./pages/AddMember";
 import OFCMemberships from "./pages/OFCMemberships";
+import MembershipPackages from "./pages/MembershipPackages";
 import UpcomingRenewals from "./pages/UpcomingRenewals";
 import Reports from "./pages/Reports";
 import CMSManagement from "./pages/CMSManagement";
@@ -50,7 +51,11 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   }, []);
 
   if (loading) {
-    return <div className="flex items-center justify-center min-h-screen">Loading...</div>;
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        Loading...
+      </div>
+    );
   }
 
   if (!session) {
@@ -69,60 +74,90 @@ const App = () => (
         <Routes>
           {/* Public route for authentication */}
           <Route path="/auth" element={<Auth />} />
-          
+
           {/* Protected routes */}
-          <Route path="/*" element={
-            <ProtectedRoute>
-              <Layout>
-                <Routes>
-                  <Route path="/" element={<Dashboard />} />
-                  <Route path="/inquiries" element={<Inquiries />} />
-                  
-                  {/* Wellness Center */}
-                  <Route path="/wellness/appointments" element={<WellnessAppointments />} />
-                  <Route path="/wellness/services" element={<WellnessServices />} />
-                  <Route path="/wellness/packages" element={<WellnessPackages />} />
-                  
-                  {/* OFC Memberships */}
-                  <Route path="/ofc/packages" element={<OFCMemberships />} />
-                  <Route path="/ofc/user-memberships" element={<OFCMemberships />} />
-                  <Route path="/ofc/upcoming-renewals" element={<UpcomingRenewals />} />
-                  
-                  {/* Gym Members */}
-                  <Route path="/gym/members" element={<GymMembers />} />
-                  <Route path="/gym/add-member" element={<AddMember />} />
-                  
-                  {/* Billing */}
-                  <Route path="/billing/invoices" element={<Invoices />} />
-                  <Route path="/billing/payments" element={<Payments />} />
-                  <Route path="/billing/due-balances" element={<Payments />} />
-                  
-                  {/* Reports */}
-                  <Route path="/reports/sales" element={<Reports />} />
-                  <Route path="/reports/cash" element={<Reports />} />
-                  <Route path="/reports/gst" element={<Reports />} />
-                  
-                  {/* CMS Management */}
-                  <Route path="/cms/stories" element={<CMSManagement />} />
-                  <Route path="/cms/gallery" element={<CMSManagement />} />
-                  <Route path="/cms/team" element={<CMSManagement />} />
-                  <Route path="/cms/testimonial" element={<CMSManagement />} />
-                  <Route path="/cms/seo" element={<SEOMetaManagement />} />
-                  
-                  {/* Event Management (Placeholder) */}
-                  <Route path="/events" element={<Dashboard />} />
-                  <Route path="/events/bookings" element={<Dashboard />} />
-                  
-                  {/* User Notification (Placeholder) */}
-                  <Route path="/notifications/send" element={<Dashboard />} />
-                  <Route path="/notifications/history" element={<Dashboard />} />
-                  
-                  {/* Catch all */}
-                  <Route path="*" element={<NotFound />} />
-                </Routes>
-              </Layout>
-            </ProtectedRoute>
-          } />
+          <Route
+            path="/*"
+            element={
+              <ProtectedRoute>
+                <Layout>
+                  <Routes>
+                    <Route path="/" element={<Dashboard />} />
+                    <Route path="/inquiries" element={<Inquiries />} />
+
+                    {/* Wellness Center */}
+                    <Route
+                      path="/wellness/appointments"
+                      element={<WellnessAppointments />}
+                    />
+                    <Route
+                      path="/wellness/services"
+                      element={<WellnessServices />}
+                    />
+                    <Route
+                      path="/wellness/packages"
+                      element={<WellnessPackages />}
+                    />
+
+                    {/* OFC Memberships */}
+                    <Route
+                      path="/ofc/packages"
+                      element={<MembershipPackages />}
+                    />
+                    <Route
+                      path="/ofc/user-memberships"
+                      element={<OFCMemberships />}
+                    />
+                    <Route
+                      path="/ofc/upcoming-renewals"
+                      element={<UpcomingRenewals />}
+                    />
+
+                    {/* Gym Members */}
+                    <Route path="/gym/members" element={<GymMembers />} />
+                    <Route path="/gym/add-member" element={<AddMember />} />
+
+                    {/* Billing */}
+                    <Route path="/billing/invoices" element={<Invoices />} />
+                    <Route path="/billing/payments" element={<Payments />} />
+                    <Route
+                      path="/billing/due-balances"
+                      element={<Payments />}
+                    />
+
+                    {/* Reports */}
+                    <Route path="/reports/sales" element={<Reports />} />
+                    <Route path="/reports/cash" element={<Reports />} />
+                    <Route path="/reports/gst" element={<Reports />} />
+
+                    {/* CMS Management */}
+                    <Route path="/cms/stories" element={<CMSManagement />} />
+                    <Route path="/cms/gallery" element={<CMSManagement />} />
+                    <Route path="/cms/team" element={<CMSManagement />} />
+                    <Route
+                      path="/cms/testimonial"
+                      element={<CMSManagement />}
+                    />
+                    <Route path="/cms/seo" element={<SEOMetaManagement />} />
+
+                    {/* Event Management (Placeholder) */}
+                    <Route path="/events" element={<Dashboard />} />
+                    <Route path="/events/bookings" element={<Dashboard />} />
+
+                    {/* User Notification (Placeholder) */}
+                    <Route path="/notifications/send" element={<Dashboard />} />
+                    <Route
+                      path="/notifications/history"
+                      element={<Dashboard />}
+                    />
+
+                    {/* Catch all */}
+                    <Route path="*" element={<NotFound />} />
+                  </Routes>
+                </Layout>
+              </ProtectedRoute>
+            }
+          />
         </Routes>
       </BrowserRouter>
     </TooltipProvider>

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -19,19 +19,55 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Search, Filter, IndianRupee, TrendingUp } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 
 const Reports = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [entriesPerPage, setEntriesPerPage] = useState("10");
 
   const salesData = [
-    { id: 1, date: "2025-07-14", customer: "azim imran bhaiji", invoice: "INV-001", package: "Gym Membership", base: "14519.90", cgst: "1307.99", sgst: "1307.99", total: "17135.88" },
-    { id: 2, date: "2025-07-14", customer: "MOhammad oliya", invoice: "INV-002", package: "Gym Membership", base: "14519.90", cgst: "1307.99", sgst: "1307.99", total: "17135.88" }
+    {
+      id: 1,
+      date: "2025-07-14",
+      customer: "azim imran bhaiji",
+      invoice: "INV-001",
+      package: "Gym Membership",
+      base: "14519.90",
+      cgst: "1307.99",
+      sgst: "1307.99",
+      total: "17135.88",
+    },
+    {
+      id: 2,
+      date: "2025-07-14",
+      customer: "MOhammad oliya",
+      invoice: "INV-002",
+      package: "Gym Membership",
+      base: "14519.90",
+      cgst: "1307.99",
+      sgst: "1307.99",
+      total: "17135.88",
+    },
   ];
 
   const cashData = [
-    { id: 1, date: "2025-07-14", customer: "azim imran bhaiji", invoice: "INV-001", mode: "Cash", amount: "17135.88" },
-    { id: 2, date: "2025-07-14", customer: "MOhammad oliya", invoice: "INV-002", mode: "UPI", amount: "17135.88" }
+    {
+      id: 1,
+      date: "2025-07-14",
+      customer: "azim imran bhaiji",
+      invoice: "INV-001",
+      mode: "Cash",
+      amount: "17135.88",
+    },
+    {
+      id: 2,
+      date: "2025-07-14",
+      customer: "MOhammad oliya",
+      invoice: "INV-002",
+      mode: "UPI",
+      amount: "17135.88",
+    },
   ];
 
   return (
@@ -47,7 +83,10 @@ const Reports = () => {
       <Tabs defaultValue="sales" className="w-full">
         <TabsList className="grid w-fit grid-cols-3">
           <TabsTrigger value="sales">Sales Register</TabsTrigger>
-          <TabsTrigger value="cash" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+          <TabsTrigger
+            value="cash"
+            className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+          >
             Cash Register
           </TabsTrigger>
           <TabsTrigger value="gst">GST Report</TabsTrigger>
@@ -57,7 +96,9 @@ const Reports = () => {
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Base Amount</CardTitle>
+                <CardTitle className="text-sm font-medium">
+                  Base Amount
+                </CardTitle>
                 <TrendingUp className="h-4 w-4 text-primary" />
               </CardHeader>
               <CardContent>
@@ -66,7 +107,9 @@ const Reports = () => {
             </Card>
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">CGST Amount</CardTitle>
+                <CardTitle className="text-sm font-medium">
+                  CGST Amount
+                </CardTitle>
                 <IndianRupee className="h-4 w-4 text-primary" />
               </CardHeader>
               <CardContent>
@@ -75,7 +118,9 @@ const Reports = () => {
             </Card>
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">SGST Amount</CardTitle>
+                <CardTitle className="text-sm font-medium">
+                  SGST Amount
+                </CardTitle>
                 <IndianRupee className="h-4 w-4 text-primary" />
               </CardHeader>
               <CardContent>
@@ -84,7 +129,9 @@ const Reports = () => {
             </Card>
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Total Amount</CardTitle>
+                <CardTitle className="text-sm font-medium">
+                  Total Amount
+                </CardTitle>
                 <IndianRupee className="h-4 w-4 text-primary" />
               </CardHeader>
               <CardContent>
@@ -99,7 +146,10 @@ const Reports = () => {
                 <div className="flex items-center gap-4">
                   <div className="flex items-center gap-2">
                     <span className="text-sm">Show</span>
-                    <Select value={entriesPerPage} onValueChange={setEntriesPerPage}>
+                    <Select
+                      value={entriesPerPage}
+                      onValueChange={setEntriesPerPage}
+                    >
                       <SelectTrigger className="w-20">
                         <SelectValue />
                       </SelectTrigger>
@@ -141,7 +191,10 @@ const Reports = () => {
                 <TableBody>
                   {salesData.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={9} className="text-center py-8 text-muted-foreground">
+                      <TableCell
+                        colSpan={9}
+                        className="text-center py-8 text-muted-foreground"
+                      >
                         No data available in table
                       </TableCell>
                     </TableRow>
@@ -168,8 +221,12 @@ const Reports = () => {
                   Showing 0 to 0 of 0 entries
                 </p>
                 <div className="flex items-center gap-2">
-                  <Button variant="outline" size="sm">Previous</Button>
-                  <Button variant="outline" size="sm">Next</Button>
+                  <Button variant="outline" size="sm">
+                    Previous
+                  </Button>
+                  <Button variant="outline" size="sm">
+                    Next
+                  </Button>
                 </div>
               </div>
             </CardContent>
@@ -179,11 +236,15 @@ const Reports = () => {
         <TabsContent value="cash" className="space-y-4">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-lg font-medium">Cash Reports</CardTitle>
+              <CardTitle className="text-lg font-medium">
+                Cash Reports
+              </CardTitle>
               <div className="flex items-center gap-2">
                 <TrendingUp className="h-5 w-5 text-primary" />
                 <span className="text-2xl font-bold">₹ 0.00</span>
-                <span className="text-sm text-muted-foreground">Total Received Amount</span>
+                <span className="text-sm text-muted-foreground">
+                  Total Received Amount
+                </span>
               </div>
             </CardHeader>
           </Card>
@@ -194,7 +255,10 @@ const Reports = () => {
                 <div className="flex items-center gap-4">
                   <div className="flex items-center gap-2">
                     <span className="text-sm">Show</span>
-                    <Select value={entriesPerPage} onValueChange={setEntriesPerPage}>
+                    <Select
+                      value={entriesPerPage}
+                      onValueChange={setEntriesPerPage}
+                    >
                       <SelectTrigger className="w-20">
                         <SelectValue />
                       </SelectTrigger>
@@ -233,7 +297,10 @@ const Reports = () => {
                 <TableBody>
                   {cashData.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
+                      <TableCell
+                        colSpan={6}
+                        className="text-center py-8 text-muted-foreground"
+                      >
                         No data available in table
                       </TableCell>
                     </TableRow>
@@ -257,8 +324,12 @@ const Reports = () => {
                   Showing 0 to 0 of 0 entries
                 </p>
                 <div className="flex items-center gap-2">
-                  <Button variant="outline" size="sm">Previous</Button>
-                  <Button variant="outline" size="sm">Next</Button>
+                  <Button variant="outline" size="sm">
+                    Previous
+                  </Button>
+                  <Button variant="outline" size="sm">
+                    Next
+                  </Button>
                 </div>
               </div>
             </CardContent>
@@ -269,7 +340,9 @@ const Reports = () => {
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Base Amount</CardTitle>
+                <CardTitle className="text-sm font-medium">
+                  Base Amount
+                </CardTitle>
                 <TrendingUp className="h-4 w-4 text-primary" />
               </CardHeader>
               <CardContent>
@@ -278,7 +351,9 @@ const Reports = () => {
             </Card>
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">CGST Amount</CardTitle>
+                <CardTitle className="text-sm font-medium">
+                  CGST Amount
+                </CardTitle>
                 <IndianRupee className="h-4 w-4 text-primary" />
               </CardHeader>
               <CardContent>
@@ -287,7 +362,9 @@ const Reports = () => {
             </Card>
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">SGST Amount</CardTitle>
+                <CardTitle className="text-sm font-medium">
+                  SGST Amount
+                </CardTitle>
                 <IndianRupee className="h-4 w-4 text-primary" />
               </CardHeader>
               <CardContent>
@@ -296,7 +373,9 @@ const Reports = () => {
             </Card>
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Total Amount</CardTitle>
+                <CardTitle className="text-sm font-medium">
+                  Total Amount
+                </CardTitle>
                 <IndianRupee className="h-4 w-4 text-primary" />
               </CardHeader>
               <CardContent>

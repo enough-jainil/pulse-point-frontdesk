@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -11,9 +11,121 @@ import {
 } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ArrowLeft, ArrowRight } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
+import { useNavigate } from "react-router-dom";
 
 const AddMember = () => {
   const [currentStep, setCurrentStep] = useState(1);
+  const [packages, setPackages] = useState([]);
+  const [formData, setFormData] = useState({
+    firstName: "",
+    lastName: "",
+    email: "",
+    phone: "",
+    dob: "",
+    gender: "",
+    address: "",
+    city: "",
+    state: "",
+    pincode: "",
+    selectedPackage: "",
+    paymentMethod: "",
+    amount: 0,
+  });
+  const { toast } = useToast();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    fetchPackages();
+  }, []);
+
+  const fetchPackages = async () => {
+    try {
+      const { data, error } = await supabase
+        .from("membership_packages")
+        .select("*")
+        .eq("status", "active");
+
+      if (error) {
+        throw error;
+      }
+
+      setPackages(data || []);
+    } catch (error: unknown) {
+      const errorMessage =
+        error instanceof Error ? error.message : "Unknown error";
+      toast({
+        title: "Error",
+        description: "Failed to fetch packages: " + errorMessage,
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleSubmit = async () => {
+    try {
+      // Add member
+      const { data: memberData, error: memberError } = await supabase
+        .from("members")
+        .insert({
+          member_id: crypto.randomUUID(),
+          first_name: formData.firstName,
+          last_name: formData.lastName,
+          email: formData.email,
+          phone: formData.phone,
+          date_of_birth: formData.dob,
+          gender: formData.gender,
+          address: formData.address,
+          city: formData.city,
+          state: formData.state,
+          pincode: formData.pincode,
+          status: "active",
+        })
+        .select()
+        .single();
+
+      if (memberError) {
+        throw memberError;
+      }
+
+      // Add membership if package selected
+      if (formData.selectedPackage) {
+        const { error: membershipError } = await supabase
+          .from("member_memberships")
+          .insert({
+            member_id: memberData.id,
+            package_id: formData.selectedPackage,
+            start_date: new Date().toISOString().split("T")[0],
+            end_date: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000)
+              .toISOString()
+              .split("T")[0], // 1 year
+            amount_paid: formData.amount,
+            status: "active",
+            payment_status: "paid",
+          });
+
+        if (membershipError) {
+          throw membershipError;
+        }
+      }
+
+      toast({
+        title: "Success",
+        description: "Member added successfully",
+      });
+
+      navigate("/gym/members");
+    } catch (error: unknown) {
+      const errorMessage =
+        error instanceof Error ? error.message : "Unknown error";
+      toast({
+        title: "Error",
+        description: "Failed to add member: " + errorMessage,
+        variant: "destructive",
+      });
+    }
+  };
 
   const steps = [
     { id: 1, title: "Customer Details", subtitle: "Setup Account Details" },
@@ -94,7 +206,11 @@ const AddMember = () => {
 
             <div className="space-y-2">
               <Label htmlFor="email">Email*</Label>
-              <Input id="email" type="email" placeholder="Enter email address" />
+              <Input
+                id="email"
+                type="email"
+                placeholder="Enter email address"
+              />
             </div>
 
             <div className="space-y-2">

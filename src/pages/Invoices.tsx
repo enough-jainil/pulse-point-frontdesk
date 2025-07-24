@@ -6,10 +6,36 @@ import { Badge } from "@/components/ui/badge";
 import { Filter, Plus } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 const Invoices = () => {
   const [invoices, setInvoices] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [createDialogOpen, setCreateDialogOpen] = useState(false);
+  const [formData, setFormData] = useState({
+    customer_name: "",
+    customer_phone: "",
+    customer_email: "",
+    invoice_no: "",
+    amount: 0,
+    due_date: "",
+    description: "",
+  });
   const { toast } = useToast();
 
   const columns = [
@@ -21,7 +47,9 @@ const Invoices = () => {
       key: "status",
       label: "STATUS",
       render: (value: string) => (
-        <Badge variant={value.toLowerCase() === "paid" ? "default" : "destructive"}>
+        <Badge
+          variant={value.toLowerCase() === "paid" ? "default" : "destructive"}
+        >
           {value}
         </Badge>
       ),
@@ -55,10 +83,12 @@ const Invoices = () => {
       }
 
       setInvoices(data || []);
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const errorMessage =
+        error instanceof Error ? error.message : "Unknown error";
       toast({
         title: "Error",
-        description: "Failed to fetch invoices: " + error.message,
+        description: "Failed to fetch invoices: " + errorMessage,
         variant: "destructive",
       });
     } finally {
@@ -66,7 +96,54 @@ const Invoices = () => {
     }
   };
 
-  const handleEdit = (invoice: any) => {
+  const handleCreateInvoice = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      const { error } = await supabase.from("invoices").insert({
+        customer_name: formData.customer_name,
+        customer_phone: formData.customer_phone,
+        customer_email: formData.customer_email,
+        invoice_no: formData.invoice_no || `INV-${Date.now()}`,
+        amount: formData.amount,
+        due_date: formData.due_date,
+        description: formData.description,
+        status: "unpaid",
+        balance_due: formData.amount,
+        invoice_date: new Date().toISOString().split("T")[0],
+      });
+
+      if (error) {
+        throw error;
+      }
+
+      toast({
+        title: "Success",
+        description: "Invoice created successfully",
+      });
+
+      setCreateDialogOpen(false);
+      setFormData({
+        customer_name: "",
+        customer_phone: "",
+        customer_email: "",
+        invoice_no: "",
+        amount: 0,
+        due_date: "",
+        description: "",
+      });
+      fetchInvoices();
+    } catch (error: unknown) {
+      const errorMessage =
+        error instanceof Error ? error.message : "Unknown error";
+      toast({
+        title: "Error",
+        description: "Failed to create invoice: " + errorMessage,
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleEdit = (invoice: Record<string, unknown>) => {
     // Implementation for edit
     toast({
       title: "Edit Invoice",
@@ -74,7 +151,7 @@ const Invoices = () => {
     });
   };
 
-  const handleDelete = (invoice: any) => {
+  const handleDelete = (invoice: Record<string, unknown>) => {
     // Implementation for delete
     toast({
       title: "Delete Invoice",

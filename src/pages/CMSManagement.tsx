@@ -20,6 +20,16 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Search, Edit, Trash2 } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { useToast } from "@/hooks/use-toast";
 
 const CMSManagement = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -30,20 +40,22 @@ const CMSManagement = () => {
       id: 1,
       image: "/placeholder.svg",
       title: "Mastering the Machines: A Beginner's Guide to Gym Equipment",
-      description: "Mastering the Machines: A Beginner's Guide to Gym Equipment Mastering the Machines: A Beginner's Guide to Gym Equipment",
+      description:
+        "Mastering the Machines: A Beginner's Guide to Gym Equipment Mastering the Machines: A Beginner's Guide to Gym Equipment",
       priority: 2,
       isFeatured: "Yes",
-      status: "Active"
+      status: "Active",
     },
     {
       id: 2,
       image: "/placeholder.svg",
       title: "MMA : A Beginner's Guide to Gym Equipment",
-      description: "MMA : A Beginner's Guide to Gym Equipment MMA : A Beginner's Guide to Gym Equipment",
+      description:
+        "MMA : A Beginner's Guide to Gym Equipment MMA : A Beginner's Guide to Gym Equipment",
       priority: 1,
       isFeatured: "Yes",
-      status: "Active"
-    }
+      status: "Active",
+    },
   ];
 
   const team = [
@@ -53,7 +65,7 @@ const CMSManagement = () => {
       name: "Amelia Slive Robert",
       designation: "Product Owner",
       description: "Product Owner",
-      status: "In Active"
+      status: "In Active",
     },
     {
       id: 2,
@@ -61,14 +73,32 @@ const CMSManagement = () => {
       name: "Michel Johnson",
       designation: "CEO/Founder",
       description: "CEO/Founder",
-      status: "In Active"
-    }
+      status: "In Active",
+    },
   ];
 
   const gallery = [
-    { id: 1, image: "/placeholder.svg", title: "Title Here", priority: 10, status: "Active" },
-    { id: 2, image: "/placeholder.svg", title: "Title Here", priority: 9, status: "Active" },
-    { id: 3, image: "/placeholder.svg", title: "Title Here", priority: 8, status: "Active" }
+    {
+      id: 1,
+      image: "/placeholder.svg",
+      title: "Title Here",
+      priority: 10,
+      status: "Active",
+    },
+    {
+      id: 2,
+      image: "/placeholder.svg",
+      title: "Title Here",
+      priority: 9,
+      status: "Active",
+    },
+    {
+      id: 3,
+      image: "/placeholder.svg",
+      title: "Title Here",
+      priority: 8,
+      status: "Active",
+    },
   ];
 
   const testimonials = [
@@ -77,9 +107,10 @@ const CMSManagement = () => {
       image: "/placeholder.svg",
       name: "Octane fit city member",
       designation: "Business executive",
-      description: "It has been almost one year and I have lost weight and increased my strength. I find the coaches so motivating and supportive. During the shred I worked with Dave and he was very motivating and held me accountable. The nutritional guidance and meal plans are easy to follow and realistic and plenty of food. Everyone is extremely - REAL - supportive, FUN, KNOWLEDGABLE and challenging.",
-      status: "Active"
-    }
+      description:
+        "It has been almost one year and I have lost weight and increased my strength. I find the coaches so motivating and supportive. During the shred I worked with Dave and he was very motivating and held me accountable. The nutritional guidance and meal plans are easy to follow and realistic and plenty of food. Everyone is extremely - REAL - supportive, FUN, KNOWLEDGABLE and challenging.",
+      status: "Active",
+    },
   ];
 
   return (
@@ -90,7 +121,10 @@ const CMSManagement = () => {
 
       <Tabs defaultValue="stories" className="w-full">
         <TabsList className="grid w-fit grid-cols-5">
-          <TabsTrigger value="stories" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+          <TabsTrigger
+            value="stories"
+            className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+          >
             Stories
           </TabsTrigger>
           <TabsTrigger value="gallery">Our Gallery</TabsTrigger>
@@ -111,7 +145,10 @@ const CMSManagement = () => {
                 <div className="flex items-center gap-4">
                   <div className="flex items-center gap-2">
                     <span className="text-sm">Show</span>
-                    <Select value={entriesPerPage} onValueChange={setEntriesPerPage}>
+                    <Select
+                      value={entriesPerPage}
+                      onValueChange={setEntriesPerPage}
+                    >
                       <SelectTrigger className="w-20">
                         <SelectValue />
                       </SelectTrigger>
@@ -162,7 +199,9 @@ const CMSManagement = () => {
                         <p className="font-medium truncate">{story.title}</p>
                       </TableCell>
                       <TableCell className="max-w-md">
-                        <p className="text-sm text-muted-foreground truncate">{story.description}</p>
+                        <p className="text-sm text-muted-foreground truncate">
+                          {story.description}
+                        </p>
                       </TableCell>
                       <TableCell>{story.priority}</TableCell>
                       <TableCell>
@@ -177,10 +216,18 @@ const CMSManagement = () => {
                       </TableCell>
                       <TableCell>
                         <div className="flex items-center gap-2">
-                          <Button variant="ghost" size="icon" className="h-8 w-8 text-warning">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 text-warning"
+                          >
                             <Edit className="h-4 w-4" />
                           </Button>
-                          <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 text-destructive"
+                          >
                             <Trash2 className="h-4 w-4" />
                           </Button>
                         </div>
@@ -195,9 +242,18 @@ const CMSManagement = () => {
                   Showing 1 to {stories.length} of {stories.length} entries
                 </p>
                 <div className="flex items-center gap-2">
-                  <Button variant="outline" size="sm">Previous</Button>
-                  <Button size="sm" className="bg-primary text-primary-foreground">1</Button>
-                  <Button variant="outline" size="sm">Next</Button>
+                  <Button variant="outline" size="sm">
+                    Previous
+                  </Button>
+                  <Button
+                    size="sm"
+                    className="bg-primary text-primary-foreground"
+                  >
+                    1
+                  </Button>
+                  <Button variant="outline" size="sm">
+                    Next
+                  </Button>
                 </div>
               </div>
             </CardContent>
@@ -241,10 +297,18 @@ const CMSManagement = () => {
                       </TableCell>
                       <TableCell>
                         <div className="flex items-center gap-2">
-                          <Button variant="ghost" size="icon" className="h-8 w-8 text-warning">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 text-warning"
+                          >
                             <Edit className="h-4 w-4" />
                           </Button>
-                          <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 text-destructive"
+                          >
                             <Trash2 className="h-4 w-4" />
                           </Button>
                         </div>
@@ -290,16 +354,22 @@ const CMSManagement = () => {
                       <TableCell>{member.designation}</TableCell>
                       <TableCell>{member.description}</TableCell>
                       <TableCell>
-                        <Badge variant="outline">
-                          {member.status}
-                        </Badge>
+                        <Badge variant="outline">{member.status}</Badge>
                       </TableCell>
                       <TableCell>
                         <div className="flex items-center gap-2">
-                          <Button variant="ghost" size="icon" className="h-8 w-8 text-warning">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 text-warning"
+                          >
                             <Edit className="h-4 w-4" />
                           </Button>
-                          <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 text-destructive"
+                          >
                             <Trash2 className="h-4 w-4" />
                           </Button>
                         </div>
@@ -344,7 +414,9 @@ const CMSManagement = () => {
                       <TableCell>{testimonial.name}</TableCell>
                       <TableCell>{testimonial.designation}</TableCell>
                       <TableCell className="max-w-md">
-                        <p className="text-sm truncate">{testimonial.description}</p>
+                        <p className="text-sm truncate">
+                          {testimonial.description}
+                        </p>
                       </TableCell>
                       <TableCell>
                         <Badge className="bg-info text-info-foreground">
@@ -353,10 +425,18 @@ const CMSManagement = () => {
                       </TableCell>
                       <TableCell>
                         <div className="flex items-center gap-2">
-                          <Button variant="ghost" size="icon" className="h-8 w-8 text-warning">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 text-warning"
+                          >
                             <Edit className="h-4 w-4" />
                           </Button>
-                          <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 text-destructive"
+                          >
                             <Trash2 className="h-4 w-4" />
                           </Button>
                         </div>
