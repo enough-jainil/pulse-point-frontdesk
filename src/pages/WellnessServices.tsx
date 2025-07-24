@@ -3,13 +3,18 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { DataTable } from "@/components/DataTable";
 import { Badge } from "@/components/ui/badge";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Plus } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { ServiceForm } from "@/components/forms/ServiceForm";
 
 const WellnessServices = () => {
   const [services, setServices] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [editingService, setEditingService] = useState(null);
+  const [formLoading, setFormLoading] = useState(false);
   const { toast } = useToast();
 
   const columns = [
@@ -66,31 +71,9 @@ const WellnessServices = () => {
     }
   };
 
-  const handleEdit = async (service: any) => {
-    // For now, show a simple prompt - you can replace with a proper modal
-    const newTitle = prompt("Edit service title:", service.title);
-    if (!newTitle) return;
-
-    try {
-      const { error } = await supabase
-        .from("services")
-        .update({ title: newTitle })
-        .eq("id", service.id);
-
-      if (error) throw error;
-
-      toast({
-        title: "Success",
-        description: "Service updated successfully",
-      });
-      fetchServices();
-    } catch (error: any) {
-      toast({
-        title: "Error",
-        description: error.message,
-        variant: "destructive",
-      });
-    }
+  const handleEdit = (service: any) => {
+    setEditingService(service);
+    setDialogOpen(true);
   };
 
   const handleDelete = async (service: any) => {
@@ -118,27 +101,87 @@ const WellnessServices = () => {
     }
   };
 
-  const handleAdd = async () => {
-    const title = prompt("Enter service title:");
-    if (!title) return;
+  const handleAdd = () => {
+    setEditingService(null);
+    setDialogOpen(true);
+  };
 
-    const description = prompt("Enter service description:");
-    
+  const handleFormSubmit = async (data: any) => {
+    setFormLoading(true);
     try {
-      const { error } = await supabase
-        .from("services")
-        .insert([{
-          title,
-          description: description || "",
-          status: "active"
-        }]);
+      let imageUrl = data.image_url;
 
-      if (error) throw error;
+      // Handle image upload if there's a file
+      if (data.imageFile) {
+        const fileExt = data.imageFile.name.split('.').pop();
+        const fileName = `${Math.random()}.${fileExt}`;
+        const filePath = `services/${fileName}`;
 
-      toast({
-        title: "Success",
-        description: "Service added successfully",
-      });
+        const { error: uploadError } = await supabase.storage
+          .from('service-images')
+          .upload(filePath, data.imageFile);
+
+        if (uploadError) {
+          // Create bucket if it doesn't exist
+          const { error: bucketError } = await supabase.storage.createBucket('service-images', {
+            public: true
+          });
+          
+          if (!bucketError) {
+            // Retry upload
+            const { error: retryUploadError } = await supabase.storage
+              .from('service-images')
+              .upload(filePath, data.imageFile);
+            
+            if (!retryUploadError) {
+              const { data: urlData } = supabase.storage
+                .from('service-images')
+                .getPublicUrl(filePath);
+              imageUrl = urlData.publicUrl;
+            }
+          }
+        } else {
+          const { data: urlData } = supabase.storage
+            .from('service-images')
+            .getPublicUrl(filePath);
+          imageUrl = urlData.publicUrl;
+        }
+      }
+
+      const serviceData = {
+        title: data.title,
+        description: data.description,
+        image_url: imageUrl,
+        status: data.status,
+      };
+
+      if (editingService) {
+        const { error } = await supabase
+          .from("services")
+          .update(serviceData)
+          .eq("id", editingService.id);
+
+        if (error) throw error;
+
+        toast({
+          title: "Success",
+          description: "Service updated successfully",
+        });
+      } else {
+        const { error } = await supabase
+          .from("services")
+          .insert([serviceData]);
+
+        if (error) throw error;
+
+        toast({
+          title: "Success",
+          description: "Service added successfully",
+        });
+      }
+
+      setDialogOpen(false);
+      setEditingService(null);
       fetchServices();
     } catch (error: any) {
       toast({
@@ -146,6 +189,8 @@ const WellnessServices = () => {
         description: error.message,
         variant: "destructive",
       });
+    } finally {
+      setFormLoading(false);
     }
   };
 
@@ -176,6 +221,23 @@ const WellnessServices = () => {
           />
         </CardContent>
       </Card>
+
+      {/* Add/Edit Dialog */}
+      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+        <DialogContent className="sm:max-w-[525px]">
+          <DialogHeader>
+            <DialogTitle>
+              {editingService ? "Edit Service" : "Add New Service"}
+            </DialogTitle>
+          </DialogHeader>
+          <ServiceForm
+            service={editingService}
+            onSubmit={handleFormSubmit}
+            onCancel={() => setDialogOpen(false)}
+            loading={formLoading}
+          />
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

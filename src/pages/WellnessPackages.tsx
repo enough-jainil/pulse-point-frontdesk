@@ -3,13 +3,18 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { DataTable } from "@/components/DataTable";
 import { Badge } from "@/components/ui/badge";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Plus } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { PackageForm } from "@/components/forms/PackageForm";
 
 const WellnessPackages = () => {
   const [packages, setPackages] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [editingPackage, setEditingPackage] = useState(null);
+  const [formLoading, setFormLoading] = useState(false);
   const { toast } = useToast();
 
   const columns = [
@@ -87,30 +92,9 @@ const WellnessPackages = () => {
     }
   };
 
-  const handleEdit = async (pkg: any) => {
-    const newTitle = prompt("Edit package title:", pkg.title);
-    if (!newTitle) return;
-
-    try {
-      const { error } = await supabase
-        .from("wellness_packages")
-        .update({ title: newTitle })
-        .eq("id", pkg.id);
-
-      if (error) throw error;
-
-      toast({
-        title: "Success",
-        description: "Package updated successfully",
-      });
-      fetchPackages();
-    } catch (error: any) {
-      toast({
-        title: "Error",
-        description: error.message,
-        variant: "destructive",
-      });
-    }
+  const handleEdit = (pkg: any) => {
+    setEditingPackage(pkg);
+    setDialogOpen(true);
   };
 
   const handleDelete = async (pkg: any) => {
@@ -138,42 +122,41 @@ const WellnessPackages = () => {
     }
   };
 
-  const handleAdd = async () => {
-    const title = prompt("Enter package title:");
-    if (!title) return;
+  const handleAdd = () => {
+    setEditingPackage(null);
+    setDialogOpen(true);
+  };
 
-    const sessionsStr = prompt("Enter number of sessions:", "1");
-    const durationStr = prompt("Enter duration in minutes:", "60");
-    const mrpStr = prompt("Enter MRP:", "1000");
-    const sellingPriceStr = prompt("Enter selling price:", "900");
-    
-    if (!sessionsStr || !durationStr || !mrpStr || !sellingPriceStr) return;
-
+  const handleFormSubmit = async (data: any) => {
+    setFormLoading(true);
     try {
-      const sessions = parseInt(sessionsStr);
-      const duration_minutes = parseInt(durationStr);
-      const mrp = parseFloat(mrpStr);
-      const selling_price = parseFloat(sellingPriceStr);
-      const discount = Math.round(((mrp - selling_price) / mrp) * 100);
+      if (editingPackage) {
+        const { error } = await supabase
+          .from("wellness_packages")
+          .update(data)
+          .eq("id", editingPackage.id);
 
-      const { error } = await supabase
-        .from("wellness_packages")
-        .insert([{
-          title,
-          sessions,
-          duration_minutes,
-          mrp,
-          selling_price,
-          discount,
-          status: "active"
-        }]);
+        if (error) throw error;
 
-      if (error) throw error;
+        toast({
+          title: "Success",
+          description: "Package updated successfully",
+        });
+      } else {
+        const { error } = await supabase
+          .from("wellness_packages")
+          .insert([data]);
 
-      toast({
-        title: "Success",
-        description: "Package added successfully",
-      });
+        if (error) throw error;
+
+        toast({
+          title: "Success",
+          description: "Package added successfully",
+        });
+      }
+
+      setDialogOpen(false);
+      setEditingPackage(null);
       fetchPackages();
     } catch (error: any) {
       toast({
@@ -181,6 +164,8 @@ const WellnessPackages = () => {
         description: error.message,
         variant: "destructive",
       });
+    } finally {
+      setFormLoading(false);
     }
   };
 
@@ -211,6 +196,23 @@ const WellnessPackages = () => {
           />
         </CardContent>
       </Card>
+
+      {/* Add/Edit Dialog */}
+      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+        <DialogContent className="sm:max-w-[525px]">
+          <DialogHeader>
+            <DialogTitle>
+              {editingPackage ? "Edit Package" : "Add New Package"}
+            </DialogTitle>
+          </DialogHeader>
+          <PackageForm
+            package={editingPackage}
+            onSubmit={handleFormSubmit}
+            onCancel={() => setDialogOpen(false)}
+            loading={formLoading}
+          />
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

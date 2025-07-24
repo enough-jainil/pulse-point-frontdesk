@@ -3,16 +3,19 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { DataTable } from "@/components/DataTable";
 import { Badge } from "@/components/ui/badge";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Plus, Users, UserCheck, UserX } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { useNavigate } from "react-router-dom";
+import { MemberForm } from "@/components/forms/MemberForm";
 
 const GymMembers = () => {
   const [members, setMembers] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [editingMember, setEditingMember] = useState(null);
+  const [formLoading, setFormLoading] = useState(false);
   const { toast } = useToast();
-  const navigate = useNavigate();
 
   const columns = [
     { 
@@ -78,11 +81,8 @@ const GymMembers = () => {
   };
 
   const handleEdit = (member: any) => {
-    toast({
-      title: "Edit Member",
-      description: `Editing ${member.first_name} ${member.last_name}`,
-    });
-    // Navigate to edit page or open edit modal
+    setEditingMember(member);
+    setDialogOpen(true);
   };
 
   const handleDelete = async (member: any) => {
@@ -111,10 +111,59 @@ const GymMembers = () => {
   };
 
   const handleView = (member: any) => {
-    toast({
-      title: "View Member",
-      description: `Viewing details for ${member.first_name} ${member.last_name}`,
-    });
+    setEditingMember(member);
+    setDialogOpen(true);
+  };
+
+  const handleAdd = () => {
+    setEditingMember(null);
+    setDialogOpen(true);
+  };
+
+  const handleFormSubmit = async (data: any) => {
+    setFormLoading(true);
+    try {
+      if (editingMember) {
+        const { error } = await supabase
+          .from("members")
+          .update(data)
+          .eq("id", editingMember.id);
+
+        if (error) throw error;
+
+        toast({
+          title: "Success",
+          description: "Member updated successfully",
+        });
+      } else {
+        // Generate member ID
+        const memberCount = members.length + 1;
+        const memberId = `MEM${memberCount.toString().padStart(4, '0')}`;
+        
+        const { error } = await supabase
+          .from("members")
+          .insert([{ ...data, member_id: memberId }]);
+
+        if (error) throw error;
+
+        toast({
+          title: "Success",
+          description: "Member added successfully",
+        });
+      }
+
+      setDialogOpen(false);
+      setEditingMember(null);
+      fetchMembers();
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    } finally {
+      setFormLoading(false);
+    }
   };
 
   const activeMembers = members.filter((member: any) => member.status === "active");
@@ -133,7 +182,7 @@ const GymMembers = () => {
           </Badge>
           <Button 
             className="bg-primary hover:bg-primary/90"
-            onClick={() => navigate('/gym/add-member')}
+            onClick={handleAdd}
           >
             <Plus className="h-4 w-4 mr-2" />
             Add Member
@@ -190,6 +239,23 @@ const GymMembers = () => {
           />
         </CardContent>
       </Card>
+
+      {/* Add/Edit Dialog */}
+      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+        <DialogContent className="sm:max-w-[625px]">
+          <DialogHeader>
+            <DialogTitle>
+              {editingMember ? "Edit Member" : "Add New Member"}
+            </DialogTitle>
+          </DialogHeader>
+          <MemberForm
+            member={editingMember}
+            onSubmit={handleFormSubmit}
+            onCancel={() => setDialogOpen(false)}
+            loading={formLoading}
+          />
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
