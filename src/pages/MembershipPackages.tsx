@@ -124,7 +124,7 @@ const MembershipPackages = () => {
     try {
       const { error } = await supabase
         .from("membership_packages")
-        .update({ status: "inactive" })
+        .delete()
         .eq("id", pkg.id);
 
       if (error) {

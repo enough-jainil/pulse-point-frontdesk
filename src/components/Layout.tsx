@@ -1,4 +1,4 @@
-import { Bell, Moon, Plus, Sun } from "lucide-react";
+import { Bell, Moon, Plus, Sun, User, Package, HelpCircle } from "lucide-react";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
 import { Button } from "@/components/ui/button";
@@ -8,17 +8,9 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
 import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
-import { MemberForm } from "@/components/forms/MemberForm";
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -28,7 +20,6 @@ export function Layout({ children }: LayoutProps) {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [isDarkMode, setIsDarkMode] = useState(false);
-  const [newRegistrationOpen, setNewRegistrationOpen] = useState(false);
 
   useEffect(() => {
     // Check for saved theme preference or default to light
@@ -66,6 +57,34 @@ export function Layout({ children }: LayoutProps) {
       description: "You are now viewing the gym members section",
     });
   };
+
+  const handleNewItemClick = (type: string) => {
+    switch (type) {
+      case "member":
+        navigate("/gym/add-member");
+        toast({
+          title: "Add Member",
+          description: "Navigating to add new member form",
+        });
+        break;
+      case "inquiry":
+        navigate("/inquiries");
+        toast({
+          title: "Add Inquiry",
+          description: "Navigating to inquiries page",
+        });
+        break;
+      case "package":
+        navigate("ofc/packages");
+        toast({
+          title: "Add Package",
+          description: "Navigating to membership packages page",
+        });
+        break;
+      default:
+        break;
+    }
+  };
   return (
     <SidebarProvider>
       <div className="min-h-screen flex w-full bg-background">
@@ -77,35 +96,34 @@ export function Layout({ children }: LayoutProps) {
             <div className="flex items-center gap-4">
               <SidebarTrigger />
               <div className="flex items-center gap-3">
-                <Dialog
-                  open={newRegistrationOpen}
-                  onOpenChange={setNewRegistrationOpen}
-                >
-                  <DialogTrigger asChild>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
                     <Button variant="outline" size="sm" className="gap-2">
                       <Plus className="h-4 w-4" />
-                      New Registration
+                      New
                     </Button>
-                  </DialogTrigger>
-                  <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-                    <DialogHeader>
-                      <DialogTitle>New Member Registration</DialogTitle>
-                    </DialogHeader>
-                    <MemberForm
-                      onSubmit={(data) => {
-                        // Handle form submission here
-                        console.log("New member data:", data);
-                        toast({
-                          title: "Member Added",
-                          description:
-                            "New member has been successfully registered",
-                        });
-                        setNewRegistrationOpen(false);
-                      }}
-                      onCancel={() => setNewRegistrationOpen(false)}
-                    />
-                  </DialogContent>
-                </Dialog>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="start">
+                    <DropdownMenuItem
+                      onClick={() => handleNewItemClick("member")}
+                    >
+                      <User className="h-4 w-4 mr-2" />
+                      Add Member
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onClick={() => handleNewItemClick("inquiry")}
+                    >
+                      <HelpCircle className="h-4 w-4 mr-2" />
+                      Add Inquiry
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onClick={() => handleNewItemClick("package")}
+                    >
+                      <Package className="h-4 w-4 mr-2" />
+                      Add Package
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
                 <Button
                   variant="outline"
                   size="sm"

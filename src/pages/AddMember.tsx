@@ -33,6 +33,22 @@ const AddMember = () => {
     paymentMethod: "",
     amount: 0,
   });
+
+  const handleInputChange = (field: string, value: string | number) => {
+    setFormData((prev) => ({
+      ...prev,
+      [field]: value,
+    }));
+  };
+
+  const handlePackageSelect = (packageId: string) => {
+    const selectedPkg = packages.find((pkg: any) => pkg.id === packageId);
+    setFormData((prev) => ({
+      ...prev,
+      selectedPackage: packageId,
+      amount: selectedPkg ? selectedPkg.price : 0,
+    }));
+  };
   const { toast } = useToast();
   const navigate = useNavigate();
 
@@ -189,18 +205,28 @@ const AddMember = () => {
               </Select>
             </div>
 
-            <Button className="w-full bg-primary hover:bg-primary-hover">
-              Add New
-            </Button>
-
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="firstName">First Name*</Label>
-                <Input id="firstName" placeholder="Enter first name" />
+                <Input
+                  id="firstName"
+                  placeholder="Enter first name"
+                  value={formData.firstName}
+                  onChange={(e) =>
+                    handleInputChange("firstName", e.target.value)
+                  }
+                />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="lastName">Last Name*</Label>
-                <Input id="lastName" placeholder="Enter last name" />
+                <Input
+                  id="lastName"
+                  placeholder="Enter last name"
+                  value={formData.lastName}
+                  onChange={(e) =>
+                    handleInputChange("lastName", e.target.value)
+                  }
+                />
               </div>
             </div>
 
@@ -210,22 +236,37 @@ const AddMember = () => {
                 id="email"
                 type="email"
                 placeholder="Enter email address"
+                value={formData.email}
+                onChange={(e) => handleInputChange("email", e.target.value)}
               />
             </div>
 
             <div className="space-y-2">
               <Label htmlFor="phone">Phone Number*</Label>
-              <Input id="phone" placeholder="Enter phone number" />
+              <Input
+                id="phone"
+                placeholder="Enter phone number"
+                value={formData.phone}
+                onChange={(e) => handleInputChange("phone", e.target.value)}
+              />
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="dob">Date of Birth</Label>
-                <Input id="dob" type="date" />
+                <Input
+                  id="dob"
+                  type="date"
+                  value={formData.dob}
+                  onChange={(e) => handleInputChange("dob", e.target.value)}
+                />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="gender">Gender</Label>
-                <Select>
+                <Select
+                  value={formData.gender}
+                  onValueChange={(value) => handleInputChange("gender", value)}
+                >
                   <SelectTrigger>
                     <SelectValue placeholder="Select gender" />
                   </SelectTrigger>
@@ -240,21 +281,41 @@ const AddMember = () => {
 
             <div className="space-y-2">
               <Label htmlFor="address">Address</Label>
-              <Input id="address" placeholder="Enter address" />
+              <Input
+                id="address"
+                placeholder="Enter address"
+                value={formData.address}
+                onChange={(e) => handleInputChange("address", e.target.value)}
+              />
             </div>
 
             <div className="grid grid-cols-3 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="city">City</Label>
-                <Input id="city" placeholder="Enter city" />
+                <Input
+                  id="city"
+                  placeholder="Enter city"
+                  value={formData.city}
+                  onChange={(e) => handleInputChange("city", e.target.value)}
+                />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="state">State</Label>
-                <Input id="state" placeholder="Enter state" />
+                <Input
+                  id="state"
+                  placeholder="Enter state"
+                  value={formData.state}
+                  onChange={(e) => handleInputChange("state", e.target.value)}
+                />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="pincode">Pincode</Label>
-                <Input id="pincode" placeholder="Enter pincode" />
+                <Input
+                  id="pincode"
+                  placeholder="Enter pincode"
+                  value={formData.pincode}
+                  onChange={(e) => handleInputChange("pincode", e.target.value)}
+                />
               </div>
             </div>
           </CardContent>
@@ -266,9 +327,71 @@ const AddMember = () => {
           <CardHeader>
             <CardTitle>Membership Packages</CardTitle>
           </CardHeader>
-          <CardContent>
-            <div className="text-center py-8 text-muted-foreground">
-              Select membership package for the customer
+          <CardContent className="space-y-4">
+            <div className="space-y-2">
+              <Label>Select Package*</Label>
+              <Select
+                value={formData.selectedPackage}
+                onValueChange={handlePackageSelect}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Choose a membership package" />
+                </SelectTrigger>
+                <SelectContent>
+                  {packages.length === 0 ? (
+                    <SelectItem value="no-packages" disabled>
+                      No packages available
+                    </SelectItem>
+                  ) : (
+                    packages.map((pkg: any) => (
+                      <SelectItem key={pkg.id} value={pkg.id}>
+                        {pkg.name} - ₹{pkg.price} ({pkg.duration}{" "}
+                        {pkg.duration_type})
+                      </SelectItem>
+                    ))
+                  )}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {formData.selectedPackage && (
+              <div className="p-4 bg-muted rounded-lg">
+                {(() => {
+                  const selectedPkg = packages.find(
+                    (pkg: any) => pkg.id === formData.selectedPackage
+                  );
+                  return selectedPkg ? (
+                    <div className="space-y-2">
+                      <h3 className="font-semibold">{selectedPkg.name}</h3>
+                      <p className="text-sm text-muted-foreground">
+                        {selectedPkg.description}
+                      </p>
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm">
+                          Duration: {selectedPkg.duration}{" "}
+                          {selectedPkg.duration_type}
+                        </span>
+                        <span className="font-semibold text-lg">
+                          ₹{selectedPkg.price}
+                        </span>
+                      </div>
+                    </div>
+                  ) : null;
+                })()}
+              </div>
+            )}
+
+            <div className="space-y-2">
+              <Label htmlFor="amount">Amount</Label>
+              <Input
+                id="amount"
+                type="number"
+                placeholder="Enter amount"
+                value={formData.amount}
+                onChange={(e) =>
+                  handleInputChange("amount", parseFloat(e.target.value) || 0)
+                }
+              />
             </div>
           </CardContent>
         </Card>
@@ -279,10 +402,87 @@ const AddMember = () => {
           <CardHeader>
             <CardTitle>Payment Details</CardTitle>
           </CardHeader>
-          <CardContent>
-            <div className="text-center py-8 text-muted-foreground">
-              Enter payment information
+          <CardContent className="space-y-4">
+            <div className="space-y-2">
+              <Label>Payment Method*</Label>
+              <Select
+                value={formData.paymentMethod}
+                onValueChange={(value) =>
+                  handleInputChange("paymentMethod", value)
+                }
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select payment method" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="cash">Cash</SelectItem>
+                  <SelectItem value="card">Card</SelectItem>
+                  <SelectItem value="upi">UPI</SelectItem>
+                  <SelectItem value="net_banking">Net Banking</SelectItem>
+                  <SelectItem value="cheque">Cheque</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="finalAmount">Final Amount*</Label>
+              <Input
+                id="finalAmount"
+                type="number"
+                value={formData.amount}
+                onChange={(e) =>
+                  handleInputChange("amount", parseFloat(e.target.value) || 0)
+                }
+                placeholder="Enter final amount"
+              />
+            </div>
+
+            {formData.selectedPackage && (
+              <div className="p-4 bg-muted rounded-lg">
+                <h3 className="font-semibold mb-2">Summary</h3>
+                {(() => {
+                  const selectedPkg = packages.find(
+                    (pkg: any) => pkg.id === formData.selectedPackage
+                  );
+                  return selectedPkg ? (
+                    <div className="space-y-1 text-sm">
+                      <div className="flex justify-between">
+                        <span>Package:</span>
+                        <span>{selectedPkg.name}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>Duration:</span>
+                        <span>
+                          {selectedPkg.duration} {selectedPkg.duration_type}
+                        </span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>Payment Method:</span>
+                        <span className="capitalize">
+                          {formData.paymentMethod || "Not selected"}
+                        </span>
+                      </div>
+                      <div className="flex justify-between font-semibold border-t pt-1">
+                        <span>Total Amount:</span>
+                        <span>₹{formData.amount}</span>
+                      </div>
+                    </div>
+                  ) : null;
+                })()}
+              </div>
+            )}
+
+            <Button
+              onClick={handleSubmit}
+              className="w-full bg-primary hover:bg-primary-hover"
+              disabled={
+                !formData.paymentMethod ||
+                !formData.selectedPackage ||
+                formData.amount <= 0
+              }
+            >
+              Complete Registration
+            </Button>
           </CardContent>
         </Card>
       )}
@@ -298,14 +498,18 @@ const AddMember = () => {
           <ArrowLeft className="h-4 w-4" />
           Previous
         </Button>
-        <Button
-          onClick={() => setCurrentStep(Math.min(3, currentStep + 1))}
-          disabled={currentStep === 3}
-          className="gap-2 bg-primary hover:bg-primary-hover"
-        >
-          Next
-          <ArrowRight className="h-4 w-4" />
-        </Button>
+        {currentStep < 3 ? (
+          <Button
+            onClick={() => setCurrentStep(Math.min(3, currentStep + 1))}
+            disabled={currentStep === 3}
+            className="gap-2 bg-primary hover:bg-primary-hover"
+          >
+            Next
+            <ArrowRight className="h-4 w-4" />
+          </Button>
+        ) : (
+          <div />
+        )}
       </div>
     </div>
   );

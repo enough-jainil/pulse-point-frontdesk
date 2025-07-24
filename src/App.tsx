@@ -19,6 +19,7 @@ import WellnessServices from "./pages/WellnessServices";
 import WellnessPackages from "./pages/WellnessPackages";
 import Invoices from "./pages/Invoices";
 import Payments from "./pages/Payments";
+import Profile from "./pages/Profile";
 import Auth from "./pages/Auth";
 import NotFound from "./pages/NotFound";
 import { useState, useEffect } from "react";
@@ -150,6 +151,9 @@ const App = () => (
                       path="/notifications/history"
                       element={<Dashboard />}
                     />
+
+                    {/* Profile */}
+                    <Route path="/profile" element={<Profile />} />
 
                     {/* Catch all */}
                     <Route path="*" element={<NotFound />} />

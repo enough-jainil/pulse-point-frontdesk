@@ -12,7 +12,7 @@ import {
   TrendingUp,
   Users,
   User,
-  LogOut
+  LogOut,
 } from "lucide-react";
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -144,16 +144,20 @@ export function AppSidebar() {
   useEffect(() => {
     // Get current user
     const getUser = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
       setUser(user);
     };
     getUser();
 
     // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((event, session) => {
       setUser(session?.user || null);
-      if (event === 'SIGNED_OUT') {
-        navigate('/auth');
+      if (event === "SIGNED_OUT") {
+        navigate("/auth");
       }
     });
 
@@ -167,7 +171,7 @@ export function AppSidebar() {
         title: "Logged out",
         description: "You have been successfully logged out.",
       });
-      navigate('/auth');
+      navigate("/auth");
     } catch (error: any) {
       toast({
         title: "Error",
@@ -204,7 +208,10 @@ export function AppSidebar() {
               {mainMenuItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild isActive={isActive(item.url)}>
-                    <NavLink to={item.url} className="flex items-center gap-3 px-3 py-2">
+                    <NavLink
+                      to={item.url}
+                      className="flex items-center gap-3 px-3 py-2"
+                    >
                       <item.icon className="h-4 w-4" />
                       {!isCollapsed && <span>{item.title}</span>}
                     </NavLink>
@@ -228,7 +235,9 @@ export function AppSidebar() {
                     <section.icon className="h-4 w-4" />
                     {!isCollapsed && (
                       <>
-                        <span className="flex-1 text-left">{section.title}</span>
+                        <span className="flex-1 text-left">
+                          {section.title}
+                        </span>
                         <ChevronUp className="h-4 w-4 transition-transform group-data-[state=open]/collapsible:rotate-180" />
                       </>
                     )}
@@ -239,7 +248,10 @@ export function AppSidebar() {
                     <SidebarMenuSub>
                       {section.items.map((item) => (
                         <SidebarMenuSubItem key={item.title}>
-                          <SidebarMenuSubButton asChild isActive={isActive(item.url)}>
+                          <SidebarMenuSubButton
+                            asChild
+                            isActive={isActive(item.url)}
+                          >
                             <NavLink to={item.url} className="px-6 py-1">
                               {item.title}
                             </NavLink>
@@ -277,16 +289,18 @@ export function AppSidebar() {
                   )}
                 </SidebarMenuButton>
               </DropdownMenuTrigger>
-              <DropdownMenuContent side="top" className="w-[--radix-popper-anchor-width] bg-popover border">
-                <DropdownMenuItem>
+              <DropdownMenuContent
+                side="top"
+                className="w-[--radix-popper-anchor-width] bg-popover border"
+              >
+                <DropdownMenuItem onClick={() => navigate("/profile")}>
                   <User className="h-4 w-4 mr-2" />
                   <span>Profile</span>
                 </DropdownMenuItem>
-                <DropdownMenuItem>
-                  <Settings className="h-4 w-4 mr-2" />
-                  <span>Settings</span>
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={handleLogout} className="text-destructive">
+                <DropdownMenuItem
+                  onClick={handleLogout}
+                  className="text-destructive"
+                >
                   <LogOut className="h-4 w-4 mr-2" />
                   <span>Sign out</span>
                 </DropdownMenuItem>
