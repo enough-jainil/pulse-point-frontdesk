@@ -53,6 +53,7 @@ const MembershipPackages = () => {
       const { data, error } = await supabase
         .from("membership_packages")
         .select("*")
+        .eq("status", "active")
         .order("created_at", { ascending: false });
 
       if (error) {
@@ -122,19 +123,63 @@ const MembershipPackages = () => {
 
   const handleDelete = async (pkg: any) => {
     try {
-      const { error } = await supabase
-        .from("membership_packages")
-        .delete()
-        .eq("id", pkg.id);
+      // Check if package is being used by any members
+      const { data: memberships, error: checkError } = await supabase
+        .from("member_memberships")
+        .select("id")
+        .eq("package_id", pkg.id)
+        .limit(1);
 
-      if (error) {
-        throw error;
+      if (checkError) {
+        throw checkError;
       }
 
-      toast({
-        title: "Success",
-        description: "Package deleted successfully",
-      });
+      if (memberships && memberships.length > 0) {
+        // Package is in use, so mark as inactive instead of deleting
+        const { error } = await supabase
+          .from("membership_packages")
+          .update({ status: "inactive" })
+          .eq("id", pkg.id);
+
+        if (error) {
+          throw error;
+        }
+
+        toast({
+          title: "Package Deactivated",
+          description:
+            "Package is in use by members, so it has been deactivated instead of deleted.",
+        });
+      } else {
+        // Package is not in use, safe to delete
+        const { error } = await supabase
+          .from("membership_packages")
+          .delete()
+          .eq("id", pkg.id);
+
+        if (error) {
+          // If delete still fails, fall back to marking as inactive
+          const { error: updateError } = await supabase
+            .from("membership_packages")
+            .update({ status: "inactive" })
+            .eq("id", pkg.id);
+
+          if (updateError) {
+            throw updateError;
+          }
+
+          toast({
+            title: "Package Deactivated",
+            description:
+              "Package has been deactivated due to database constraints.",
+          });
+        } else {
+          toast({
+            title: "Success",
+            description: "Package deleted successfully",
+          });
+        }
+      }
 
       fetchPackages();
     } catch (error: unknown) {

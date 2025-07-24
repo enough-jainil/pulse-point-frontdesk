@@ -143,22 +143,6 @@ export function Layout({ children }: LayoutProps) {
                 )}
               </Button>
 
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="icon" className="relative">
-                    <Bell className="h-4 w-4" />
-                    <span className="absolute -top-1 -right-1 h-4 w-4 bg-destructive text-destructive-foreground text-xs rounded-full flex items-center justify-center">
-                      5
-                    </span>
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuItem>New member registration</DropdownMenuItem>
-                  <DropdownMenuItem>Payment received</DropdownMenuItem>
-                  <DropdownMenuItem>Membership expiring</DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-
               <div className="flex items-center gap-2 text-sm">
                 <span className="text-muted-foreground">Front desk</span>
                 <div className="flex items-center gap-2">

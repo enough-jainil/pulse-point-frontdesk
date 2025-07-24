@@ -114,22 +114,6 @@ const sectionMenuItems = [
       { title: "SEO Meta", url: "/cms/seo" },
     ],
   },
-  {
-    title: "Event Management",
-    icon: Calendar,
-    items: [
-      { title: "Events", url: "/events" },
-      { title: "Bookings", url: "/events/bookings" },
-    ],
-  },
-  {
-    title: "User Notification",
-    icon: MessageSquare,
-    items: [
-      { title: "Send Notifications", url: "/notifications/send" },
-      { title: "Notification History", url: "/notifications/history" },
-    ],
-  },
 ];
 
 export function AppSidebar() {

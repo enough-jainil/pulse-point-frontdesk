@@ -141,17 +141,6 @@ const App = () => (
                     />
                     <Route path="/cms/seo" element={<SEOMetaManagement />} />
 
-                    {/* Event Management (Placeholder) */}
-                    <Route path="/events" element={<Dashboard />} />
-                    <Route path="/events/bookings" element={<Dashboard />} />
-
-                    {/* User Notification (Placeholder) */}
-                    <Route path="/notifications/send" element={<Dashboard />} />
-                    <Route
-                      path="/notifications/history"
-                      element={<Dashboard />}
-                    />
-
                     {/* Profile */}
                     <Route path="/profile" element={<Profile />} />
 
