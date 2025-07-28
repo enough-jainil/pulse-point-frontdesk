@@ -3,9 +3,10 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { DataTable } from "@/components/DataTable";
 import { Badge } from "@/components/ui/badge";
-import { Filter, Plus } from "lucide-react";
+import { Filter, Plus, Download } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import jsPDF from "jspdf";
 import {
   Dialog,
   DialogContent,
@@ -64,6 +65,21 @@ const Invoices = () => {
       key: "balance_due",
       label: "BALANCE DUE",
       render: (value: number) => `₹${value.toFixed(2)}`,
+    },
+    {
+      key: "actions",
+      label: "ACTIONS",
+      render: (_: unknown, row: Record<string, unknown>) => (
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => generateInvoicePDF(row)}
+          className="h-8"
+        >
+          <Download className="h-4 w-4 mr-1" />
+          PDF
+        </Button>
+      ),
     },
   ];
 
@@ -158,6 +174,155 @@ const Invoices = () => {
       description: `Deleting invoice ${invoice.invoice_no}`,
       variant: "destructive",
     });
+  };
+
+  const generateInvoicePDF = (invoice: any) => {
+    try {
+      // Create new PDF document
+      const doc = new jsPDF();
+
+      // Company/Header Information
+      doc.setFontSize(20);
+      doc.setFont("helvetica", "bold");
+      doc.text("O2 GYM", 20, 25);
+
+      doc.setFontSize(12);
+      doc.setFont("helvetica", "normal");
+      doc.text("Gym & Wellness Center", 20, 35);
+      doc.text("Phone: +91-XXXXX-XXXXX", 20, 45);
+      doc.text("Email: info@o2gym.com", 20, 55);
+
+      // Invoice Title
+      doc.setFontSize(16);
+      doc.setFont("helvetica", "bold");
+      doc.text("INVOICE", 160, 25);
+
+      // Invoice Details Box
+      doc.setFontSize(10);
+      doc.setFont("helvetica", "normal");
+      doc.text(`Invoice No: ${invoice.invoice_no}`, 160, 40);
+      doc.text(
+        `Date: ${new Date(invoice.invoice_date).toLocaleDateString()}`,
+        160,
+        50
+      );
+      doc.text(
+        `Due Date: ${new Date(invoice.due_date).toLocaleDateString()}`,
+        160,
+        60
+      );
+      doc.text(`Status: ${invoice.status.toUpperCase()}`, 160, 70);
+
+      // Customer Information
+      doc.setFontSize(12);
+      doc.setFont("helvetica", "bold");
+      doc.text("Bill To:", 20, 85);
+
+      doc.setFontSize(10);
+      doc.setFont("helvetica", "normal");
+      doc.text(invoice.customer_name, 20, 95);
+      doc.text(`Phone: ${invoice.customer_phone}`, 20, 105);
+      if (invoice.customer_email) {
+        doc.text(`Email: ${invoice.customer_email}`, 20, 115);
+      }
+
+      // Invoice Items Table (Manual)
+      const tableStartY = 130;
+      const tableWidth = 170;
+      const cellHeight = 10;
+      const col1Width = 120;
+      const col2Width = 50;
+
+      // Table header
+      doc.setFillColor(41, 128, 185);
+      doc.rect(20, tableStartY, tableWidth, cellHeight, "F");
+
+      doc.setTextColor(255, 255, 255);
+      doc.setFontSize(10);
+      doc.setFont("helvetica", "bold");
+      doc.text("Description", 25, tableStartY + 7);
+      doc.text("Amount", 170, tableStartY + 7, { align: "right" });
+
+      // Table body
+      doc.setFillColor(240, 240, 240);
+      doc.rect(20, tableStartY + cellHeight, tableWidth, cellHeight, "F");
+      doc.rect(20, tableStartY, tableWidth, cellHeight * 2, "S");
+
+      doc.setTextColor(0, 0, 0);
+      doc.setFont("helvetica", "normal");
+      doc.text(
+        invoice.description || "Gym Membership",
+        25,
+        tableStartY + cellHeight + 7
+      );
+      doc.text(
+        `₹${invoice.amount.toFixed(2)}`,
+        185,
+        tableStartY + cellHeight + 7,
+        { align: "right" }
+      );
+
+      // Draw table lines
+      doc.line(20, tableStartY, 190, tableStartY); // Top line
+      doc.line(20, tableStartY + cellHeight, 190, tableStartY + cellHeight); // Middle line
+      doc.line(
+        20,
+        tableStartY + cellHeight * 2,
+        190,
+        tableStartY + cellHeight * 2
+      ); // Bottom line
+      doc.line(20, tableStartY, 20, tableStartY + cellHeight * 2); // Left line
+      doc.line(140, tableStartY, 140, tableStartY + cellHeight * 2); // Column separator
+      doc.line(190, tableStartY, 190, tableStartY + cellHeight * 2); // Right line
+
+      // Totals
+      const finalY = tableStartY + cellHeight * 2 + 20;
+
+      doc.setFontSize(10);
+      doc.text("Subtotal:", 140, finalY);
+      doc.text(`₹${invoice.amount.toFixed(2)}`, 180, finalY);
+
+      doc.text("Tax (0%):", 140, finalY + 10);
+      doc.text("₹0.00", 180, finalY + 10);
+
+      // Total
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(12);
+      doc.text("Total Amount:", 140, finalY + 25);
+      doc.text(`₹${invoice.amount.toFixed(2)}`, 180, finalY + 25);
+
+      if (invoice.balance_due > 0) {
+        doc.setTextColor(255, 0, 0);
+        doc.text("Balance Due:", 140, finalY + 40);
+        doc.text(`₹${invoice.balance_due.toFixed(2)}`, 180, finalY + 40);
+        doc.setTextColor(0, 0, 0);
+      }
+
+      // Footer
+      doc.setFontSize(8);
+      doc.setFont("helvetica", "normal");
+      doc.text("Thank you for choosing O2 GYM!", 20, 280);
+      doc.text(
+        "For any queries, please contact us at the above mentioned details.",
+        20,
+        290
+      );
+
+      // Save the PDF
+      doc.save(`Invoice_${invoice.invoice_no}.pdf`);
+
+      toast({
+        title: "Success",
+        description: `Invoice ${invoice.invoice_no} downloaded successfully`,
+      });
+    } catch (error) {
+      console.error("Error generating PDF:", error);
+      toast({
+        title: "Error",
+        description: "Failed to generate PDF. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
   return (

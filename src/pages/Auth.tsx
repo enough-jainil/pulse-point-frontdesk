@@ -22,7 +22,9 @@ const Auth = () => {
   useEffect(() => {
     // Check if user is already logged in
     const checkAuth = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
       if (session) {
         navigate("/");
       }
@@ -40,7 +42,7 @@ const Auth = () => {
           email,
           password,
         });
-        
+
         if (error) {
           toast({
             title: "Login Error",
@@ -62,10 +64,10 @@ const Auth = () => {
             emailRedirectTo: `${window.location.origin}/`,
             data: {
               full_name: fullName,
-            }
-          }
+            },
+          },
         });
-        
+
         if (error) {
           toast({
             title: "Signup Error",
@@ -75,7 +77,8 @@ const Auth = () => {
         } else {
           toast({
             title: "Success",
-            description: "Account created successfully! Please check your email for verification.",
+            description:
+              "Account created successfully! Please check your email for verification.",
           });
           setIsLogin(true);
         }
@@ -96,13 +99,15 @@ const Auth = () => {
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
           <div className="mx-auto mb-4 w-16 h-16 bg-primary rounded-full flex items-center justify-center">
-            <span className="text-primary-foreground font-bold text-xl">GYM</span>
+            <span className="text-primary-foreground font-bold text-xl">
+              GYM
+            </span>
           </div>
-          <CardTitle className="text-2xl">
-            Welcome to Power Gym 
-          </CardTitle>
+          <CardTitle className="text-2xl">Welcome to O2 GYM</CardTitle>
           <p className="text-muted-foreground">
-            {isLogin ? "Sign in to your admin account" : "Create your admin account"}
+            {isLogin
+              ? "Sign in to your admin account"
+              : "Create your admin account"}
           </p>
         </CardHeader>
         <CardContent>
@@ -120,7 +125,7 @@ const Auth = () => {
                 />
               </div>
             )}
-            
+
             <div className="space-y-2">
               <Label htmlFor="email">Email *</Label>
               <Input
@@ -132,7 +137,7 @@ const Auth = () => {
                 required
               />
             </div>
-            
+
             <div className="space-y-2">
               <Label htmlFor="password">Password *</Label>
               <Input
@@ -151,7 +156,9 @@ const Auth = () => {
                   <Checkbox
                     id="remember"
                     checked={rememberMe}
-                    onCheckedChange={(checked) => setRememberMe(checked as boolean)}
+                    onCheckedChange={(checked) =>
+                      setRememberMe(checked as boolean)
+                    }
                   />
                   <Label htmlFor="remember" className="text-sm">
                     Remember Me
@@ -163,11 +170,7 @@ const Auth = () => {
               </div>
             )}
 
-            <Button 
-              type="submit" 
-              className="w-full"
-              disabled={loading}
-            >
+            <Button type="submit" className="w-full" disabled={loading}>
               {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               {isLogin ? "Sign in" : "Sign up"}
             </Button>
@@ -179,10 +182,9 @@ const Auth = () => {
               onClick={() => setIsLogin(!isLogin)}
               type="button"
             >
-              {isLogin 
-                ? "Don't have an account? Sign up" 
-                : "Already have an account? Sign in"
-              }
+              {isLogin
+                ? "Don't have an account? Sign up"
+                : "Already have an account? Sign in"}
             </Button>
           </div>
         </CardContent>

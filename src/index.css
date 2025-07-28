@@ -2,7 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Octane Fit City Design System - Orange Theme */
+/* O2 GYM Design System - Orange Theme */
 
 @layer base {
   :root {
@@ -48,8 +48,16 @@
     --radius: 0.5rem;
 
     /* Gradients */
-    --gradient-primary: linear-gradient(135deg, hsl(var(--primary)), hsl(25 95% 48%));
-    --gradient-subtle: linear-gradient(180deg, hsl(var(--background)), hsl(210 40% 98%));
+    --gradient-primary: linear-gradient(
+      135deg,
+      hsl(var(--primary)),
+      hsl(25 95% 48%)
+    );
+    --gradient-subtle: linear-gradient(
+      180deg,
+      hsl(var(--background)),
+      hsl(210 40% 98%)
+    );
 
     /* Shadows */
     --shadow-primary: 0 10px 30px -10px hsl(var(--primary) / 0.3);

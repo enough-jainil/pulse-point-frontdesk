@@ -129,7 +129,7 @@ export function Layout({ children }: LayoutProps) {
                   size="sm"
                   onClick={handlePowerGymClick}
                 >
-                  Power Gym
+                  O2 GYM
                 </Button>
               </div>
             </div>

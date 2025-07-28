@@ -27,8 +27,10 @@ const Login = () => {
               <Dumbbell className="h-6 w-6" />
             </div>
             <div>
-              <h1 className="text-2xl font-bold text-primary">Octane Fit City</h1>
-              <p className="text-sm text-muted-foreground">Gym Management System</p>
+              <h1 className="text-2xl font-bold text-primary">O2 GYM</h1>
+              <p className="text-sm text-muted-foreground">
+                Gym Management System
+              </p>
             </div>
           </div>
           <CardTitle className="text-xl">Front Desk Login</CardTitle>
@@ -79,7 +81,9 @@ const Login = () => {
                 <Checkbox
                   id="remember"
                   checked={rememberMe}
-                  onCheckedChange={(checked) => setRememberMe(checked as boolean)}
+                  onCheckedChange={(checked) =>
+                    setRememberMe(checked as boolean)
+                  }
                 />
                 <Label htmlFor="remember" className="text-sm font-normal">
                   Remember me
