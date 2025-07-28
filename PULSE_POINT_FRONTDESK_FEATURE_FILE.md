@@ -186,8 +186,34 @@ React is a JavaScript library for building user interfaces. It allows developers
 
 The Agile-Scrum Hybrid model combines elements of the linear sequential model with the philosophy of prototyping and iterative development. In this model, development is broken down into sprints, with each sprint delivering a potentially shippable increment of the product. This allows for continuous feedback and adaptation throughout the development lifecycle.
 
-```
-[A diagram illustrates the incremental model with boxes for Requirements, Design & Development, Testing, and Implementation, showing a flow from one to the next in three parallel streams.]
+```mermaid
+graph TD
+    A[Requirements] --> B[Design & Development]
+    B --> C[Testing]
+    C --> D[Implementation]
+    
+    A1[Requirements] --> B1[Design & Development]
+    B1 --> C1[Testing]
+    C1 --> D1[Implementation]
+    
+    A2[Requirements] --> B2[Design & Development]
+    B2 --> C2[Testing]
+    C2 --> D2[Implementation]
+    
+    style A fill:#e1f5fe
+    style B fill:#f3e5f5
+    style C fill:#e8f5e8
+    style D fill:#fff3e0
+    
+    style A1 fill:#e1f5fe
+    style B1 fill:#f3e5f5
+    style C1 fill:#e8f5e8
+    style D1 fill:#fff3e0
+    
+    style A2 fill:#e1f5fe
+    style B2 fill:#f3e5f5
+    style C2 fill:#e8f5e8
+    style D2 fill:#fff3e0
 ```
 
 **Page 17: 2.4 Requirement analysis:- & 2.5 Feasibility study:-**
@@ -219,7 +245,7 @@ The Agile-Scrum Hybrid model combines elements of the linear sequential model wi
 > Usability and easy access.
 > Save your time
 > Easy to check member status and package details
-> Don’t need to go to the gym for certain management tasks
+> Don't need to go to the gym for certain management tasks
 > Check service availability and book appointments
 
 **3.2 Scopes:-**
@@ -481,7 +507,7 @@ Database: Supabase (PostgreSQL 14+)
 
 **Page 40: Implementation planning:- & fundamentals of software development:-**
 
-> Software engineering is methodology provides the framework that guides engineer’s to developing to software.
+> Software engineering is methodology provides the framework that guides engineer's to developing to software.
 > Software engineering is a profession dedicated to designing, implementing, and modifying software so that it is of higher quality, more affordable and faster to build.
 > Software engineering remains one of the hardest subjects to explain and is subject to continue for debate.
 
@@ -498,12 +524,6 @@ Database: Supabase (PostgreSQL 14+)
 **user manual**
 {screenshots &
 description}
-
-**Page Screen Layout (PSL):**
-
-There is main t kind of Page Screen Layout, which are as below.
-A. General Page Screen Layout
-B. Page screen layout
 
 **Page 43: A. General Page Screen Layout**
 
